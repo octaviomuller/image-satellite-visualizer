@@ -12,6 +12,7 @@ import 'package:geodesy/geodesy.dart' as geodesy;
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 import 'dart:math';
 import 'dart:io';
@@ -25,8 +26,13 @@ class ImageForm extends StatefulWidget {
 
 class _ImageFormState extends State<ImageForm> {
   RegExp regex = RegExp("&URL=(.*)");
+
   Box? imageBox;
+
   final geodesy.Geodesy geodesyLib = geodesy.Geodesy();
+
+  firebase_storage.FirebaseStorage storage =
+      firebase_storage.FirebaseStorage.instance;
 
   int _currentStep = 0;
 
@@ -39,7 +45,7 @@ class _ImageFormState extends State<ImageForm> {
   };
   late double cloudCoverage;
   DateTime date = DateTime.now();
-  String layer = ""; //TODO: Add map for base and ovelay layers
+  String layer = "";
   String layerShortName = "";
   String layerDescription = "";
   List<Map<String, String>> colors = [{}];
@@ -116,7 +122,7 @@ class _ImageFormState extends State<ImageForm> {
     }
   }
 
-  void createImage() {
+  void createImage() async {
     var imageData = ImageData(
       imagePath: imagePath!,
       title: nameController.text,
@@ -128,10 +134,24 @@ class _ImageFormState extends State<ImageForm> {
       layerDescription: layerDescription,
       colors: colors,
       demo: false,
+      storageUrl:  await uploadFile(imagePath!, nameController.text),
     );
     print('result: ' + imageData.toString());
     imageBox?.add(imageData);
     Navigator.pop(context);
+  }
+
+  Future<String> uploadFile(String filePath, String title) async {
+    File file = File(filePath);
+
+    try {
+      await firebase_storage.FirebaseStorage.instance
+          .ref('images/$title.png')
+          .putFile(file);
+    } catch (e) {
+      print('error storage: $e');
+    }
+    return "https://storage.googleapis.com/image-satellite-visualizer-lg.appspot.com/images/$title.png";
   }
 
   @override

@@ -29,13 +29,14 @@ class ImageDataAdapter extends TypeAdapter<ImageData> {
           .map((dynamic e) => (e as Map).cast<String, String>())
           .toList(),
       demo: fields[9] as bool,
+      storageUrl: fields[10] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, ImageData obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.imagePath)
       ..writeByte(1)
@@ -55,7 +56,9 @@ class ImageDataAdapter extends TypeAdapter<ImageData> {
       ..writeByte(8)
       ..write(obj.colors)
       ..writeByte(9)
-      ..write(obj.demo);
+      ..write(obj.demo)
+      ..writeByte(10)
+      ..write(obj.storageUrl);
   }
 
   @override

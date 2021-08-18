@@ -37,6 +37,9 @@ class ImageData extends HiveObject {
   @HiveField(9)
   final bool demo;
 
+  @HiveField(10)
+  final String storageUrl;
+
   bool selected = false;
 
   ImageData({
@@ -50,6 +53,7 @@ class ImageData extends HiveObject {
     required this.layerDescription,
     required this.colors,
     required this.demo,
+    required this.storageUrl,
   });
 
   Future<File> generateKml() async {
@@ -92,6 +96,19 @@ class ImageData extends HiveObject {
     return fileName!;
   }
 
+  Map<String, String> lookAt() {
+    return {
+      "lng": midpoint(this.coordinates['minLon'], this.coordinates['maxLon']),
+      "lat": midpoint(this.coordinates['minLon'], this.coordinates['maxLon']),
+      "range": "1000000",
+      "tilt": "0",
+      "heading": "0"
+    };
+  }
+
+  String midpoint(String? a, String? b) =>
+      ((double.parse(a!) + double.parse(b!)) / 2).toString();
+
   toString() =>
-      "imagePath: ${this.imagePath}\n title: ${this.title}\n description: ${this.description}\n coordinates: ${this.coordinates}";
+      "imagePath: ${this.imagePath}\n title: ${this.title}\n description: ${this.description}\n coordinates: ${this.coordinates}\n storageUrl: ${this.storageUrl}";
 }

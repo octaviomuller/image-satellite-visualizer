@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:image_satellite_visualizer/models/client.dart';
 import 'package:image_satellite_visualizer/models/image_data.dart';
+import 'package:image_satellite_visualizer/models/liquid_galaxy_api.dart';
 import 'package:image_satellite_visualizer/widgets/image_info.dart'
     as imageInfo;
 
@@ -351,37 +352,39 @@ class _ImageCardState extends State<ImageCard> {
                         Spacer(),
                         IconButton(
                           onPressed: () async {
-                            widget.callback(widget.image);
-                            widget.image.selected
-                                ? await selectedImagesBox?.put(
-                                    'http://lg1:81/${widget.image.getFileName()}.kml',
-                                    'http://lg1:81/${widget.image.getFileName()}.kml')
-                                : await selectedImagesBox?.delete(
-                                    'http://lg1:81/${widget.image.getFileName()}.kml');
+                            LiquidGalaxy liquidGalaxy = LiquidGalaxy(url: 'http://192.168.0.141', images: [widget.image]);
+                            await liquidGalaxy.sendToGalaxy();
+                            // widget.callback(widget.image);
+                            // widget.image.selected
+                            //     ? await selectedImagesBox?.put(
+                            //         'http://lg1:81/${widget.image.getFileName()}.kml',
+                            //         'http://lg1:81/${widget.image.getFileName()}.kml')
+                            //     : await selectedImagesBox?.delete(
+                            //         'http://lg1:81/${widget.image.getFileName()}.kml');
 
-                            Client client = Client(
-                              ip: settingsBox?.get('ip'),
-                              username: settingsBox?.get('username'),
-                              password: settingsBox?.get('password'),
-                              image: widget.image,
-                            );
-                            try {
-                              client.sendImage(selectedImagesBox!.values
-                                  .toList()
-                                  .join('\n'));
-                            } catch (e) {
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    title: Text("Error sending image"),
-                                    content: Text(
-                                      e.toString(),
-                                    ),
-                                  );
-                                },
-                              );
-                            }
+                            // Client client = Client(
+                            //   ip: settingsBox?.get('ip'),
+                            //   username: settingsBox?.get('username'),
+                            //   password: settingsBox?.get('password'),
+                            //   image: widget.image,
+                            // );
+                            // try {
+                            //   client.sendImage(selectedImagesBox!.values
+                            //       .toList()
+                            //       .join('\n'));
+                            // } catch (e) {
+                            //   showDialog(
+                            //     context: context,
+                            //     builder: (context) {
+                            //       return AlertDialog(
+                            //         title: Text("Error sending image"),
+                            //         content: Text(
+                            //           e.toString(),
+                            //         ),
+                            //       );
+                            //     },
+                            //   );
+                            // }
                           },
                           icon: Icon(
                             widget.image.selected

@@ -4,6 +4,7 @@ import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:image_satellite_visualizer/models/image_data.dart';
 import 'package:image_satellite_visualizer/screens/splash_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
   await Hive.initFlutter();
@@ -11,6 +12,8 @@ void main() async {
   await Hive.openBox('imageBox');
   await Hive.openBox('liquidGalaxySettings');
   await Hive.openBox('selectedImages');
+
+  Firebase.initializeApp();
 
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeRight,

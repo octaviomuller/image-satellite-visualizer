@@ -23,6 +23,8 @@ dependencies:
     git:
       url: https://github.com/octaviomuller/flutter_ssh
   url_launcher: ^6.0.9
+  firebase_storage: ^10.0.2
+  dio: ^4.0.0
 
 dev_dependencies:
   flutter_test:
