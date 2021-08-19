@@ -8,18 +8,30 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
 class LiquidGalaxy {
-  final String url;
+  final String ip;
+  final String earthPort;
+  final String kmlPort;
   List<ImageData> images;
 
   LiquidGalaxy({
-    required this.url,
+    required this.ip,
     required this.images,
+    required this.earthPort,
+    required this.kmlPort,
   });
 
-  Future<void> sendToGalaxy() async {
-    try {
-      List<Map<String, dynamic>> payload = [];
+  String getKmlUrl() {
+    return "http://${this.ip}:${this.kmlPort}/kml/build/";
+  }
 
+  String getEarthUrl() {
+    return "http://${this.ip}:${this.earthPort}/earth/kml/upload/";
+  }
+
+  Future<void> sendToGalaxy() async {
+    List<Map<String, dynamic>> payload = [];
+
+    //Set a ground overlay object for each image and add to payoad
     this.images.forEach(
       (element) {
         payload.add(
@@ -44,8 +56,9 @@ class LiquidGalaxy {
       },
     );
 
-    var response = await http.post(
-      Uri.parse("$url:5431/kml/build"),
+    //Execute request and get the generated kml in string
+    var kmlResponse = await http.post(
+      Uri.parse(this.getKmlUrl()),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -58,22 +71,27 @@ class LiquidGalaxy {
       ),
     );
 
-    print('repsonse: ${response.body}');
+    //Check for errors to show in dialog
+    if(kmlResponse.statusCode != 200) throw("Error building kml");
 
+    //Create a kml local file
     Directory documentDirectory = await getApplicationDocumentsDirectory();
     File file = new File(
         path.join(documentDirectory.path, 'image_satellite_visualizer.kml'));
-    file.writeAsStringSync(response.body, encoding: utf8);
+    file.writeAsStringSync(kmlResponse.body, encoding: utf8);
 
     var dio = Dio();
 
+    //Create a form data containing the kml
     FormData formData = new FormData.fromMap({
-      "kml":  await MultipartFile.fromFile(file.path, filename: "image_satellite_visualizer.kml"),
+      "kml": await MultipartFile.fromFile(file.path,
+          filename: "image_satellite_visualizer.kml"),
     });
-    var cu = await dio.post("$url:5430/earth/kml/upload", data: formData);
-    print('cu: $cu');
-    } catch (e) {
-      print('error sending: $e');
-    }
+
+    //Execute request with file attached
+    var earthResponse = await dio.post(this.getEarthUrl(), data: 'asdasdasd');
+
+    //Check for errors to show in dialog
+    if(earthResponse.statusCode != 200) throw("Error uploading kml");
   }
 }

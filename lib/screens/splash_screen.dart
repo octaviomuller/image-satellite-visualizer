@@ -5,6 +5,7 @@ import 'package:image_satellite_visualizer/screens/dashboard.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SplashScreen extends StatefulWidget {
+  //Splash screen verification variable
   final bool isSplash;
   const SplashScreen(this.isSplash, {Key? key}) : super(key: key);
 
@@ -16,6 +17,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
+    //Set timer if in splash screen mode
     if (widget.isSplash) setTimer();
   }
 
@@ -28,6 +30,7 @@ class _SplashScreenState extends State<SplashScreen> {
         body: Stack(
           children: [
             Center(
+              //Sponsors logos
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -153,9 +156,11 @@ class _SplashScreenState extends State<SplashScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
+                          //GitHub redirection
                           GestureDetector(
                             onTap: () async {
-                              const url = 'https://github.com/LiquidGalaxyLAB/image-satellite-visualizer';
+                              const url =
+                                  'https://github.com/LiquidGalaxyLAB/image-satellite-visualizer';
                               if (await canLaunch(url)) {
                                 await launch(url);
                               } else {
@@ -171,6 +176,7 @@ class _SplashScreenState extends State<SplashScreen> {
                               ),
                             ),
                           ),
+                          //Liquid Galaxy redirection
                           GestureDetector(
                             onTap: () async {
                               const url = 'https://www.liquidgalaxy.eu/';
@@ -199,17 +205,20 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 
+  //Set time to quit splash screen
   setTimer() async {
     Duration duration = Duration(seconds: 5);
 
     return Timer(duration, finishSplashScreen);
   }
 
+  //Send to main screen
   finishSplashScreen() {
     Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (context) =>
-                Dashboard(title: 'Image Satellite Visualizer')));
+      context,
+      MaterialPageRoute(
+        builder: (context) => Dashboard(title: 'Image Satellite Visualizer'),
+      ),
+    );
   }
 }

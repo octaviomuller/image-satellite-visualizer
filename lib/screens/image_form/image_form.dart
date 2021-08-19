@@ -27,15 +27,19 @@ class ImageForm extends StatefulWidget {
 class _ImageFormState extends State<ImageForm> {
   RegExp regex = RegExp("&URL=(.*)");
 
+  //Hive box
   Box? imageBox;
 
+  //Package to handle coordinates to distances convertions
   final geodesy.Geodesy geodesyLib = geodesy.Geodesy();
 
+  //Firebase storage instance
   firebase_storage.FirebaseStorage storage =
       firebase_storage.FirebaseStorage.instance;
 
   int _currentStep = 0;
 
+  //Image Data controller
   String selectedApi = "Nasa";
   Map<String, TextEditingController> coordinates = {
     "lat1Controller": TextEditingController(),
@@ -55,108 +59,11 @@ class _ImageFormState extends State<ImageForm> {
   Map<String, String> coordinatesMap = {};
   Resolution resolution = Resolution.km1;
 
-  void createRequest() async {
-    var minLat = min(double.parse(coordinates['lat1Controller']!.text),
-        double.parse(coordinates['lat2Controller']!.text));
-    var maxLat = max(double.parse(coordinates['lat1Controller']!.text),
-        double.parse(coordinates['lat2Controller']!.text));
-    var minLon = min(double.parse(coordinates['lon1Controller']!.text),
-        double.parse(coordinates['lon2Controller']!.text));
-    var maxLon = max(double.parse(coordinates['lon1Controller']!.text),
-        double.parse(coordinates['lon2Controller']!.text));
-
-    Map<String, double> bbox = {
-      'lat1': minLat,
-      'lat2': maxLat,
-      'lon1': minLon,
-      'lon2': maxLon,
-    };
-
-    ImageRequest request = new ImageRequest(
-      layers: [layer],
-      time: '2020-03-30',
-      bbox: bbox,
-      resolution: resolution,
-      cloudCoverage: cloudCoverage,
-    );
-
-    String url;
-    if (selectedApi == "Nasa") {
-      url = request.getNasaRequestUrl();
-      print(request.getNasaRequestUrl());
-    } else if (selectedApi == "SentinelHub") {
-      url = request.getSentinelHubRequestUrl();
-      print(request.getSentinelHubRequestUrl());
-    } else {
-      var match = regex.firstMatch(request.getCopernicusRequestUrl())?.group(1);
-      url = match!;
-      print(match);
-    }
-
-    var response = await http.get(Uri.parse(url));
-    if (response.statusCode == 200) {
-      Directory documentDirectory = await getApplicationDocumentsDirectory();
-      File file = new File(path.join(documentDirectory.path,
-          '${DateTime.now().millisecondsSinceEpoch}.jpeg'));
-      file.writeAsBytesSync(response.bodyBytes);
-      setState(() {
-        imagePath = file.path;
-        coordinatesMap = {
-          'minLat': minLat.toString(),
-          'minLon': minLon.toString(),
-          'maxLat': maxLat.toString(),
-          'maxLon': maxLon.toString(),
-        };
-      });
-    } else {
-      setState(() {
-        _currentStep--;
-      });
-      showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              content: Text('Error fetching image'),
-            );
-          });
-    }
-  }
-
-  void createImage() async {
-    var imageData = ImageData(
-      imagePath: imagePath!,
-      title: nameController.text,
-      description: descriptionController.text,
-      coordinates: coordinatesMap,
-      api: selectedApi,
-      date: date,
-      layer: layerShortName,
-      layerDescription: layerDescription,
-      colors: colors,
-      demo: false,
-      storageUrl:  await uploadFile(imagePath!, nameController.text),
-    );
-    print('result: ' + imageData.toString());
-    imageBox?.add(imageData);
-    Navigator.pop(context);
-  }
-
-  Future<String> uploadFile(String filePath, String title) async {
-    File file = File(filePath);
-
-    try {
-      await firebase_storage.FirebaseStorage.instance
-          .ref('images/$title.png')
-          .putFile(file);
-    } catch (e) {
-      print('error storage: $e');
-    }
-    return "https://storage.googleapis.com/image-satellite-visualizer-lg.appspot.com/images/$title.png";
-  }
-
   @override
   void initState() {
     super.initState();
+
+    //Set Hive box
     imageBox = Hive.box('imageBox');
   }
 
@@ -173,6 +80,7 @@ class _ImageFormState extends State<ImageForm> {
           colorScheme:
               ColorScheme.light(primary: Theme.of(context).accentColor),
         ),
+        //TODO: Change stepper
         child: Stepper(
           type: StepperType.horizontal,
           physics: ScrollPhysics(),
@@ -181,6 +89,7 @@ class _ImageFormState extends State<ImageForm> {
           onStepContinue: continued,
           onStepCancel: cancel,
           steps: <Step>[
+            //API step
             Step(
               title: new Text('API'),
               content: ApiStep(selectedApi, setApi),
@@ -188,6 +97,7 @@ class _ImageFormState extends State<ImageForm> {
               state:
                   _currentStep >= 0 ? StepState.complete : StepState.disabled,
             ),
+            //Location and date step
             Step(
               title: new Text('Location and date'),
               content: DataStep(
@@ -203,6 +113,7 @@ class _ImageFormState extends State<ImageForm> {
               state:
                   _currentStep >= 1 ? StepState.complete : StepState.disabled,
             ),
+            //Layer step
             Step(
               title: new Text('Layers'),
               content: FilterStep(layer, setLayer, selectedApi),
@@ -210,6 +121,7 @@ class _ImageFormState extends State<ImageForm> {
               state:
                   _currentStep >= 2 ? StepState.complete : StepState.disabled,
             ),
+            //Name and description step
             Step(
               title: new Text('Final'),
               content:
@@ -224,16 +136,27 @@ class _ImageFormState extends State<ImageForm> {
     );
   }
 
+  //Step tap event
   tapped(int step) {
+    //Set imagePath to null if leaving final step
+    if (step != 3) imagePath = null;
+
     setState(() => _currentStep = step);
   }
 
+  //Step continue event
   continued() {
+    //Increasing step if not in the final one
     if (_currentStep < 3) {
       if (_currentStep == 0) {
         setState(() => _currentStep += 1);
-      } else if (_currentStep == 1) {
+      }
+
+      //Second step validation
+      else if (_currentStep == 1) {
+        //Check coordinates
         coordinatesCheck()
+            //Check if size is respecting the boundaries limits
             ? sizeCheck()
                 ? setState(() => _currentStep += 1)
                 : showDialog(
@@ -251,7 +174,9 @@ class _ImageFormState extends State<ImageForm> {
                     content: Text('Coordinates are required'),
                   );
                 });
-      } else if (_currentStep == 2) {
+      }
+      //Third step validation
+      else if (_currentStep == 2) {
         layer.isNotEmpty
             ? setState(() {
                 try {
@@ -275,7 +200,9 @@ class _ImageFormState extends State<ImageForm> {
                   );
                 });
       }
-    } else {
+    }
+    //Final step validation
+    else {
       imagePath != null
           ? infoCheck()
               ? createImage()
@@ -296,21 +223,158 @@ class _ImageFormState extends State<ImageForm> {
     }
   }
 
+  //Step cancel event
   cancel() {
     if (_currentStep > 0) {
+      //Set imagePath to null if leaving final step
       if (_currentStep == 3) imagePath = null;
+
       setState(() => _currentStep -= 1);
     } else {
+      //If in first step goes back to main screen
       Navigator.of(context).pop();
     }
   }
 
+  //Create image request
+  void createRequest() async {
+    //Set coordinates to minimun and maximum
+    var minLat = min(double.parse(coordinates['lat1Controller']!.text),
+        double.parse(coordinates['lat2Controller']!.text));
+    var maxLat = max(double.parse(coordinates['lat1Controller']!.text),
+        double.parse(coordinates['lat2Controller']!.text));
+    var minLon = min(double.parse(coordinates['lon1Controller']!.text),
+        double.parse(coordinates['lon2Controller']!.text));
+    var maxLon = max(double.parse(coordinates['lon1Controller']!.text),
+        double.parse(coordinates['lon2Controller']!.text));
+
+    //Set bounding box
+    Map<String, double> bbox = {
+      'lat1': minLat,
+      'lat2': maxLat,
+      'lon1': minLon,
+      'lon2': maxLon,
+    };
+
+    //Create a request object
+    ImageRequest request = new ImageRequest(
+      layers: [layer],
+      time: '2020-03-30',
+      bbox: bbox,
+      resolution: resolution,
+      cloudCoverage: cloudCoverage,
+    );
+
+    //Create request url
+    String url;
+    if (selectedApi == "Nasa") {
+      url = request.getNasaRequestUrl();
+      print(request.getNasaRequestUrl());
+    } else if (selectedApi == "SentinelHub") {
+      url = request.getSentinelHubRequestUrl();
+      print(request.getSentinelHubRequestUrl());
+    } else {
+      var match = regex.firstMatch(request.getCopernicusRequestUrl())?.group(1);
+      url = match!;
+      print(match);
+    }
+
+    //TODO: Create http request model
+    //Perfoms the http request
+    var response = await http.get(Uri.parse(url));
+
+    //Successful request
+    if (response.statusCode == 200) {
+      //Create image local file
+      Directory documentDirectory = await getApplicationDocumentsDirectory();
+      File file = new File(path.join(documentDirectory.path,
+          '${DateTime.now().millisecondsSinceEpoch}.jpeg'));
+      file.writeAsBytesSync(response.bodyBytes);
+
+      setState(() {
+        imagePath = file.path;
+        coordinatesMap = {
+          'minLat': minLat.toString(),
+          'minLon': minLon.toString(),
+          'maxLat': maxLat.toString(),
+          'maxLon': maxLon.toString(),
+        };
+      });
+    } 
+    //Unsuccessful request
+    else {
+      setState(() {
+        _currentStep--;
+      });
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Text('Error fetching image'),
+          );
+        },
+      );
+    }
+  }
+
+  //Create Image Data
+  void createImage() async {
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (context) => Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+
+    //Create Image Data object
+    var imageData = ImageData(
+      imagePath: imagePath!,
+      title: nameController.text,
+      description: descriptionController.text,
+      coordinates: coordinatesMap,
+      api: selectedApi,
+      date: date,
+      layer: layerShortName,
+      layerDescription: layerDescription,
+      colors: colors,
+      demo: false,
+      storageUrl: await uploadFile(imagePath!, nameController.text),
+    );
+
+    //Add image to box
+    imageBox?.add(imageData);
+
+    //TODO: Search for popUntil
+    Navigator.pop(context);
+    Navigator.pop(context);
+  }
+
+  //Upload image to Firebase storage
+  Future<String> uploadFile(String filePath, String title) async {
+    File file = File(filePath);
+
+    try {
+      //Upload file to storage
+      await firebase_storage.FirebaseStorage.instance
+          .ref('images/$title.png')
+          .putFile(file);
+    } catch (e) {
+      print('error storage: $e');
+    }
+
+    //Returns image access url
+    return "https://storage.googleapis.com/image-satellite-visualizer-lg.appspot.com/images/$title.png";
+  }
+
+  //API callback
   void setApi(String api) {
     setState(() {
       selectedApi = api;
     });
   }
 
+  //Coordinates callback
   void setCoordinates(Map<MarkerId, Marker> markers) {
     setState(() {
       coordinates['lat1Controller']?.text =
@@ -324,18 +388,21 @@ class _ImageFormState extends State<ImageForm> {
     });
   }
 
+  //Resolution callback
   void setResolution(Resolution newResolution) {
     setState(() {
       resolution = newResolution;
     });
   }
 
+  //Date callback
   void setDate(DateTime newDate) {
     setState(() {
       date = newDate;
     });
   }
 
+  //Layer callback
   void setLayer(
     String incomingLayer,
     String incomingShortName,
@@ -350,13 +417,15 @@ class _ImageFormState extends State<ImageForm> {
     });
   }
 
+  //Cloud coverage callback
   void setCloudCoverage(double incomingCloudCoverage) {
     setState(() {
       cloudCoverage = incomingCloudCoverage;
     });
   }
 
-  Map<String, String> getResolutions() {
+  //Get width and height of image in kilometers
+  Map<String, String> getSize() {
     int height = (geodesyLib.distanceBetweenTwoGeoPoints(
               geodesy.LatLng(double.parse(coordinates['lat1Controller']!.text),
                   double.parse(coordinates['lon1Controller']!.text)),
@@ -379,13 +448,15 @@ class _ImageFormState extends State<ImageForm> {
     };
   }
 
+  //Check if width or height is greater then 3000
   bool sizeCheck() {
-    return double.parse(getResolutions()['width']!) < 3000 ||
-            double.parse(getResolutions()['height']!) < 3000
+    return double.parse(getSize()['width']!) < 3000 ||
+            double.parse(getSize()['height']!) < 3000
         ? true
         : false;
   }
 
+  //Coordoninates validation
   bool coordinatesCheck() {
     for (var element in coordinates.values) {
       if (element.text.isEmpty) return false;
@@ -393,6 +464,7 @@ class _ImageFormState extends State<ImageForm> {
     return true;
   }
 
+  //Name/description validation
   bool infoCheck() {
     if (nameController.text.isEmpty || descriptionController.text.isEmpty)
       return false;

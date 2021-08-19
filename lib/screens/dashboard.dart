@@ -20,6 +20,7 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
+  //Hive boxes
   Box? imageBox;
   Box? settingsBox;
   Box? selectedImagesBox;
@@ -28,23 +29,32 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
 
   List<ImageData> demoImages = [];
 
+  //Tab controllers
   late TabController _tabController;
   late int _tabIndex = 0;
 
   @override
   void initState() {
-    super.initState();
+    //Set boxes
     imageBox = Hive.box('imageBox');
     settingsBox = Hive.box('liquidGalaxySettings');
     selectedImagesBox = Hive.box('selectedImages');
+
+    //Set tab controllers
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
       setState(() {
         _tabIndex = _tabController.index;
       });
     });
+
+    //Set Liquid Galaxy connection variable as false
     settingsBox?.put('connection', false);
+
+    //Load demos
     loadJsonData();
+
+    super.initState();
   }
 
   @override
@@ -93,6 +103,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                     ),
                   ),
                 ),
+                //My Images
                 ValueListenableBuilder(
                   valueListenable: Hive.box('imageBox').listenable(),
                   builder: (context, box, widget) {
@@ -116,6 +127,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
                 ),
               ],
             ),
+            //Demo images
             GridView.count(
               children: imageCards(demoImages),
               childAspectRatio: 0.8,
@@ -144,6 +156,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     );
   }
 
+  //Callback function to select images
   void setSelection(ImageData image) {
     setState(() {
       image.selected = !image.selected;
@@ -153,7 +166,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
   List<dynamic> _runFilter(String enteredKeyword) {
     List<dynamic> results = [];
     if (enteredKeyword.isEmpty) {
-      // if the search field is empty or only contains white-space, we'll display all users
+      //If the search field is empty or only contains white-space, we'll display all images
       results = imageBox!.values.toList();
     } else {
       results = imageBox!.values
@@ -161,12 +174,13 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           .where((image) =>
               image.title.toLowerCase().contains(enteredKeyword.toLowerCase()))
           .toList();
-      // we use the toLowerCase() method to make it case-insensitive
+      //We use the toLowerCase() method to make it case-insensitive
     }
 
     return results;
   }
 
+  //Set image cards from image data
   List<Widget> imageCards(List images) {
     List<Widget> list = [];
 
@@ -181,6 +195,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     return list;
   }
 
+  //Set Image Data objects from json file for demos
   void loadJsonData() async {
     List<ImageData> images = [];
     var jsonText = await rootBundle.loadString('assets/json/demos.json');
@@ -202,7 +217,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           colors: List<Map<String, String>>.from(colors),
           api: element['api'],
           demo: true,
-          storageUrl: 'testeee',
+          storageUrl: 'testeee', //TODO: Set storage url for demos
         ),
       );
     });
@@ -212,6 +227,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     });
   }
 
+  //Clean all kmls from Liquid Galaxy
   void cleanKmls() {
     Client client = Client(
       ip: settingsBox?.get('ip'),
@@ -220,6 +236,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
     );
 
     try {
+      //Deselect all images
       setState(() {
         demoImages.forEach((element) {
           element.selected = false;
@@ -228,7 +245,11 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           element.selected = false;
         });
       });
+
+      //Remove all images from selected images box
       selectedImagesBox?.deleteAll(selectedImagesBox!.values);
+
+      //Function that empties the kmls.txt
       client.cleanKML();
     } catch (e) {
       showDialog(

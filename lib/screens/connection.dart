@@ -13,24 +13,40 @@ class Connection extends StatefulWidget {
 }
 
 class _ConnectionState extends State<Connection> {
+  //Hive boxes
   Box? imageBox;
   Box? settingsBox;
   Box? selectedImagesBox;
 
-  TextEditingController ipTextController = TextEditingController();
-  TextEditingController usernameTextController = TextEditingController();
-  TextEditingController passwordTextController = TextEditingController();
-  TextEditingController urlTextXontroller = TextEditingController();
+  //Ubuntu 16 text controllers
+  TextEditingController ipTextController =
+      TextEditingController(text: '192.168.0.156');
+  TextEditingController usernameTextController =
+      TextEditingController(text: 'lg');
+  TextEditingController passwordTextController =
+      TextEditingController(text: 'lq');
 
+  //Ubuntu 18/20 text controllers
+  TextEditingController urlIpTextController =
+      TextEditingController(text: '192.168.0.156');
+  TextEditingController urlKmlPortTextController =
+      TextEditingController(text: '5431');
+  TextEditingController urlEarthPortTextController =
+      TextEditingController(text: '5430');
+
+  //Drawer layout
   bool liquidGalaxySetup = false;
 
+  //Toggle button value
   List<bool> isSelected = [true, false];
 
   @override
   void initState() {
+    //Set boxes
     imageBox = Hive.box('imageBox');
     settingsBox = Hive.box('liquidGalaxySettings');
     selectedImagesBox = Hive.box('selectedImages');
+
     super.initState();
   }
 
@@ -39,6 +55,8 @@ class _ConnectionState extends State<Connection> {
     Size screenSize = MediaQuery.of(context).size;
 
     return SafeArea(
+      //TODO: Create animations
+      //Drawer layout changer
       child: liquidGalaxySetup
           ? Column(
               children: [
@@ -47,12 +65,14 @@ class _ConnectionState extends State<Connection> {
                     vertical: screenSize.height * 0.015,
                     horizontal: screenSize.height * 0.015,
                   ),
+                  //Change setup method
                   child: ToggleButtons(
                     borderRadius: BorderRadius.all(Radius.circular(5)),
                     children: <Widget>[
                       Text('  Ubuntu 16  '),
                       Text('  Ubuntu 18/20  '),
                     ],
+                    //Changes toggled
                     onPressed: (int index) {
                       setState(
                         () {
@@ -71,6 +91,16 @@ class _ConnectionState extends State<Connection> {
                     isSelected: isSelected,
                   ),
                 ),
+                //Changes setup layout
+                isSelected[0]
+                    ? inputController('IP', ipTextController, screenSize)
+                    : inputController('IP', urlIpTextController, screenSize),
+                isSelected[0]
+                    ? inputController('Username', usernameTextController, screenSize)
+                    : inputController('KML Port', urlIpTextController, screenSize),
+                isSelected[0]
+                    ? inputController('IP', ipTextController, screenSize)
+                    : inputController('IP', urlIpTextController, screenSize),
                 isSelected[0]
                     ? Padding(
                         padding: EdgeInsets.symmetric(
@@ -78,36 +108,9 @@ class _ConnectionState extends State<Connection> {
                           horizontal: screenSize.height * 0.015,
                         ),
                         child: TextField(
-                          keyboardType: TextInputType.number,
-                          controller: ipTextController,
-                          decoration: new InputDecoration(
-                            hintText: 'IP',
-                            labelText: 'IP',
-                          ),
-                        ),
-                      )
-                    : Padding(
-                        padding: EdgeInsets.symmetric(
-                          vertical: screenSize.height * 0.015,
-                          horizontal: screenSize.height * 0.015,
-                        ),
-                        child: TextField(
-                          keyboardType: TextInputType.number,
-                          controller: urlTextXontroller,
-                          decoration: new InputDecoration(
-                            hintText: 'URL',
-                            labelText: 'URL',
-                          ),
-                        ),
-                      ),
-                isSelected[0]
-                    ? Padding(
-                        padding: EdgeInsets.symmetric(
-                          vertical: screenSize.height * 0.015,
-                          horizontal: screenSize.height * 0.015,
-                        ),
-                        child: TextField(
-                          controller: usernameTextController,
+                          controller: isSelected[0]
+                              ? usernameTextController
+                              : urlKmlPortTextController,
                           decoration: new InputDecoration(
                             hintText: 'Username',
                             labelText: 'Username',
@@ -156,12 +159,30 @@ class _ConnectionState extends State<Connection> {
                               TextStyle(color: Theme.of(context).accentColor),
                         ),
                         onPressed: () async {
-                          settingsBox?.put('ip', ipTextController.text);
-                          settingsBox?.put(
-                              'username', usernameTextController.text);
-                          settingsBox?.put(
-                              'password', passwordTextController.text);
+                          //TODO: Create model for liquidgalaxy setup
+                          //Set setup variables in settings box
 
+                          //Ubuntu 16 setup
+                          if (isSelected[0]) {
+                            settingsBox?.put('newLiquidGalaxy', false);
+                            settingsBox?.put('ip', ipTextController.text);
+                            settingsBox?.put(
+                                'username', usernameTextController.text);
+                            settingsBox?.put(
+                                'password', passwordTextController.text);
+                          }
+                          //Ubuntu 18/20 setup
+                          else {
+                            settingsBox?.put('newLiquidGalaxy', true);
+                            settingsBox?.put('ip', urlIpTextController.text);
+                            settingsBox?.put(
+                                'kmlPort', urlKmlPortTextController.text);
+                            settingsBox?.put(
+                                'earthPort', urlEarthPortTextController.text);
+                          }
+
+                          //TODO: Create global client
+                          //Create client object
                           Client client = Client(
                             ip: settingsBox?.get('ip'),
                             username: settingsBox?.get('username'),
@@ -169,9 +190,15 @@ class _ConnectionState extends State<Connection> {
                           );
 
                           try {
+                            //Set connection values
                             await client.checkConnection();
                             settingsBox?.put('connection', true);
-                            client.sendDemos();
+
+                            //TODO: Check if it's necessary in this fork
+                            //Send logos for Liquid Galaxy
+                            client.sendLogos();
+
+                            //Changes drawer layout back
                             setState(() {
                               liquidGalaxySetup = false;
                             });
@@ -188,6 +215,8 @@ class _ConnectionState extends State<Connection> {
                                 );
                               },
                             );
+
+                            //Set connection values
                             settingsBox?.put('connection', false);
                           }
                         },
@@ -200,6 +229,7 @@ class _ConnectionState extends State<Connection> {
           : ListView(
               padding: EdgeInsets.zero,
               children: [
+                //Send to about screen
                 ListTile(
                   title: const Text('ABOUT'),
                   onTap: () => Navigator.push(
@@ -208,11 +238,13 @@ class _ConnectionState extends State<Connection> {
                         builder: (context) => SplashScreen(false)),
                   ),
                 ),
+                //Clean all KMLS from liquid galaxy
                 ListTile(
                   title: const Text('CLEAN KMLS'),
                   onTap: () => widget.callback(),
                 ),
                 ListTile(
+                  //Liquid Galaxy connection status
                   title: Row(
                     children: [
                       Text('LIQUID GALAXY SETUP'),
@@ -230,12 +262,31 @@ class _ConnectionState extends State<Connection> {
                             ),
                     ],
                   ),
+                  //Changes drawer layout
                   onTap: () => setState(() {
                     liquidGalaxySetup = true;
                   }),
                 ),
               ],
             ),
+    );
+  }
+
+  Widget inputController(
+      String label, TextEditingController controller, Size screenSize) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        vertical: screenSize.height * 0.015,
+        horizontal: screenSize.height * 0.015,
+      ),
+      child: TextField(
+        obscureText: true,
+        controller: controller,
+        decoration: new InputDecoration(
+          hintText: label,
+          labelText: label,
+        ),
+      ),
     );
   }
 }

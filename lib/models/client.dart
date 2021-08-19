@@ -38,7 +38,7 @@ class Client {
     }
   }
 
-  void sendDemos() async {
+  void sendLogos() async {
     try {
       var client = new SSHClient(
         host: this.ip,

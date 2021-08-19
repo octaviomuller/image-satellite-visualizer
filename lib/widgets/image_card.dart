@@ -186,6 +186,7 @@ class _ImageCardState extends State<ImageCard> {
                         widget.image.demo
                             ? Container()
                             : IconButton(
+                              //TODO: Clean from device
                                 onPressed: () {
                                   showDialog(
                                     context: context,
@@ -351,41 +352,58 @@ class _ImageCardState extends State<ImageCard> {
                               ),
                         Spacer(),
                         IconButton(
-                          onPressed: () async {
-                            LiquidGalaxy liquidGalaxy = LiquidGalaxy(url: 'http://192.168.0.141', images: [widget.image]);
-                            await liquidGalaxy.sendToGalaxy();
-                            // widget.callback(widget.image);
-                            // widget.image.selected
-                            //     ? await selectedImagesBox?.put(
-                            //         'http://lg1:81/${widget.image.getFileName()}.kml',
-                            //         'http://lg1:81/${widget.image.getFileName()}.kml')
-                            //     : await selectedImagesBox?.delete(
-                            //         'http://lg1:81/${widget.image.getFileName()}.kml');
+                          onPressed: () => null,
+                          // onPressed: () async {
+                          //   //Send to Liquid Galaxy Ubuntu 18/20
+                          //   if (settingsBox?.get('newLiquidGalaxy')) {
+                          //     //Set image as selected/unselected
+                          //     widget.callback(widget.image);
 
-                            // Client client = Client(
-                            //   ip: settingsBox?.get('ip'),
-                            //   username: settingsBox?.get('username'),
-                            //   password: settingsBox?.get('password'),
-                            //   image: widget.image,
-                            // );
-                            // try {
-                            //   client.sendImage(selectedImagesBox!.values
-                            //       .toList()
-                            //       .join('\n'));
-                            // } catch (e) {
-                            //   showDialog(
-                            //     context: context,
-                            //     builder: (context) {
-                            //       return AlertDialog(
-                            //         title: Text("Error sending image"),
-                            //         content: Text(
-                            //           e.toString(),
-                            //         ),
-                            //       );
-                            //     },
-                            //   );
-                            // }
-                          },
+                          //     LiquidGalaxy liquidGalaxy = LiquidGalaxy(
+                          //       images: [widget.image],
+                          //       ip: settingsBox?.get('ip'),
+                          //       earthPort: settingsBox?.get('earthPort'),
+                          //       kmlPort: settingsBox?.get('kmlPort'),
+                          //     );
+                          //     await liquidGalaxy.sendToGalaxy();
+                          //   }
+                          //   //Send to Liquid Galaxy Ubuntu 16
+                          //   else {
+                          //     //Set image as selected/unselected
+                          //     widget.callback(widget.image);
+
+                          //     widget.image.selected
+                          //         ? await selectedImagesBox?.put(
+                          //             'http://lg1:81/${widget.image.getFileName()}.kml',
+                          //             'http://lg1:81/${widget.image.getFileName()}.kml')
+                          //         : await selectedImagesBox?.delete(
+                          //             'http://lg1:81/${widget.image.getFileName()}.kml');
+
+                          //     Client client = Client(
+                          //       ip: settingsBox?.get('ip'),
+                          //       username: settingsBox?.get('username'),
+                          //       password: settingsBox?.get('password'),
+                          //       image: widget.image,
+                          //     );
+                          //     try {
+                          //       client.sendImage(selectedImagesBox!.values
+                          //           .toList()
+                          //           .join('\n'));
+                          //     } catch (e) {
+                          //       showDialog(
+                          //         context: context,
+                          //         builder: (context) {
+                          //           return AlertDialog(
+                          //             title: Text("Error sending image"),
+                          //             content: Text(
+                          //               e.toString(),
+                          //             ),
+                          //           );
+                          //         },
+                          //       );
+                          //     }
+                          //   }
+                          // },
                           icon: Icon(
                             widget.image.selected
                                 ? Icons.remove_circle

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:image_satellite_visualizer/widgets/layer_info.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class FilterStep extends StatefulWidget {
   final callback;
