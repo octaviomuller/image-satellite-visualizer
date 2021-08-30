@@ -93,47 +93,14 @@ class _ConnectionState extends State<Connection> {
                 ),
                 //Changes setup layout
                 isSelected[0]
-                    ? inputController('IP', ipTextController, screenSize)
-                    : inputController('IP', urlIpTextController, screenSize),
+                    ? inputController('IP', ipTextController, screenSize, false)
+                    : inputController('IP', urlIpTextController, screenSize, false),
                 isSelected[0]
-                    ? inputController('Username', usernameTextController, screenSize)
-                    : inputController('KML Port', urlIpTextController, screenSize),
+                    ? inputController('Username', usernameTextController, screenSize, false)
+                    : inputController('KML Port', urlIpTextController, screenSize, false),
                 isSelected[0]
-                    ? inputController('IP', ipTextController, screenSize)
-                    : inputController('IP', urlIpTextController, screenSize),
-                isSelected[0]
-                    ? Padding(
-                        padding: EdgeInsets.symmetric(
-                          vertical: screenSize.height * 0.015,
-                          horizontal: screenSize.height * 0.015,
-                        ),
-                        child: TextField(
-                          controller: isSelected[0]
-                              ? usernameTextController
-                              : urlKmlPortTextController,
-                          decoration: new InputDecoration(
-                            hintText: 'Username',
-                            labelText: 'Username',
-                          ),
-                        ),
-                      )
-                    : Container(),
-                isSelected[0]
-                    ? Padding(
-                        padding: EdgeInsets.symmetric(
-                          vertical: screenSize.height * 0.015,
-                          horizontal: screenSize.height * 0.015,
-                        ),
-                        child: TextField(
-                          obscureText: true,
-                          controller: passwordTextController,
-                          decoration: new InputDecoration(
-                            hintText: 'Password',
-                            labelText: 'Password',
-                          ),
-                        ),
-                      )
-                    : Container(),
+                    ? inputController('Password', passwordTextController, screenSize, true)
+                    : inputController('Earth Port', urlEarthPortTextController, screenSize, false),
                 Spacer(),
                 Padding(
                   padding: EdgeInsets.symmetric(
@@ -273,14 +240,14 @@ class _ConnectionState extends State<Connection> {
   }
 
   Widget inputController(
-      String label, TextEditingController controller, Size screenSize) {
+      String label, TextEditingController controller, Size screenSize, bool password) {
     return Padding(
       padding: EdgeInsets.symmetric(
         vertical: screenSize.height * 0.015,
         horizontal: screenSize.height * 0.015,
       ),
       child: TextField(
-        obscureText: true,
+        obscureText: password,
         controller: controller,
         decoration: new InputDecoration(
           hintText: label,

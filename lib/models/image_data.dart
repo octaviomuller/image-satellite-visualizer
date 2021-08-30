@@ -32,7 +32,7 @@ class ImageData extends HiveObject {
   final String layerDescription;
 
   @HiveField(8)
-  final List<Map<String, String>> colors;
+  final List<dynamic> colors;
 
   @HiveField(9)
   final bool demo;

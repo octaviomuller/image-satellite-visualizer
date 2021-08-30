@@ -38,5 +38,5 @@ flutter:
   assets:
     - assets/
     - assets/examples/
-    - assets/json/demos.json
+    - assets/json/
     - assets/demos/

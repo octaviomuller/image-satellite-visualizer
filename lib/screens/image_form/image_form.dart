@@ -4,10 +4,9 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:image_satellite_visualizer/models/image_data.dart';
 import 'package:image_satellite_visualizer/models/image_request.dart';
 import 'package:image_satellite_visualizer/models/resolution.dart';
-import 'package:image_satellite_visualizer/screens/image_form/steps/api_step.dart';
-import 'package:image_satellite_visualizer/screens/image_form/steps/data_step.dart';
 import 'package:image_satellite_visualizer/screens/image_form/steps/final_step.dart';
-import 'package:image_satellite_visualizer/screens/image_form/steps/layer_step.dart';
+import 'package:image_satellite_visualizer/screens/image_form/steps/first_step.dart';
+import 'package:image_satellite_visualizer/screens/image_form/steps/second_step.dart';
 import 'package:geodesy/geodesy.dart' as geodesy;
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
@@ -47,12 +46,12 @@ class _ImageFormState extends State<ImageForm> {
     "lat2Controller": TextEditingController(),
     "lon2Controller": TextEditingController(),
   };
-  late double cloudCoverage;
-  DateTime date = DateTime.now();
+  double cloudCoverage = 10.0;
+  DateTime date = DateTime.parse('2021-01-15');
   String layer = "";
   String layerShortName = "";
   String layerDescription = "";
-  List<Map<String, String>> colors = [{}];
+  List<dynamic> colors = [{}];
   String? imagePath;
   TextEditingController nameController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
@@ -89,25 +88,16 @@ class _ImageFormState extends State<ImageForm> {
           onStepContinue: continued,
           onStepCancel: cancel,
           steps: <Step>[
-            //API step
-            Step(
-              title: new Text('API'),
-              content: ApiStep(selectedApi, setApi),
-              isActive: _currentStep >= 0,
-              state:
-                  _currentStep >= 0 ? StepState.complete : StepState.disabled,
-            ),
             //Location and date step
             Step(
-              title: new Text('Location and date'),
-              content: DataStep(
-                textControllers: coordinates,
-                date: date,
+              title: new Text('Location'),
+              content: FirstStep(
+                coordinatesTextControllers: coordinates,
+                coordiantesCallback: setCoordinates,
                 resolution: resolution,
-                coordinateCallback: setCoordinates,
                 resolutionCallback: setResolution,
+                cloudCoverage: cloudCoverage,
                 cloudCoverageCallback: setCloudCoverage,
-                dateCallback: setDate,
               ),
               isActive: _currentStep >= 0,
               state:
@@ -115,8 +105,14 @@ class _ImageFormState extends State<ImageForm> {
             ),
             //Layer step
             Step(
-              title: new Text('Layers'),
-              content: FilterStep(layer, setLayer, selectedApi),
+              title: new Text('Layers and Date'),
+              content: FilterStep(
+                date: date,
+                layer: layer,
+                dateCallback: setDate,
+                callback: setLayer,
+                selectedApi: selectedApi,
+              ),
               isActive: _currentStep >= 0,
               state:
                   _currentStep >= 2 ? StepState.complete : StepState.disabled,
@@ -147,13 +143,9 @@ class _ImageFormState extends State<ImageForm> {
   //Step continue event
   continued() {
     //Increasing step if not in the final one
-    if (_currentStep < 3) {
+    if (_currentStep < 2) {
+      //First step validation
       if (_currentStep == 0) {
-        setState(() => _currentStep += 1);
-      }
-
-      //Second step validation
-      else if (_currentStep == 1) {
         //Check coordinates
         coordinatesCheck()
             //Check if size is respecting the boundaries limits
@@ -176,7 +168,7 @@ class _ImageFormState extends State<ImageForm> {
                 });
       }
       //Third step validation
-      else if (_currentStep == 2) {
+      else if (_currentStep == 1) {
         layer.isNotEmpty
             ? setState(() {
                 try {
@@ -300,7 +292,7 @@ class _ImageFormState extends State<ImageForm> {
           'maxLon': maxLon.toString(),
         };
       });
-    } 
+    }
     //Unsuccessful request
     else {
       setState(() {
@@ -407,13 +399,15 @@ class _ImageFormState extends State<ImageForm> {
     String incomingLayer,
     String incomingShortName,
     String incomingLayerDescription,
-    List<Map<String, String>> incomingColors,
+    List<dynamic> incomingColors,
+    String api
   ) {
     setState(() {
       layer = incomingLayer;
       layerShortName = incomingShortName;
       layerDescription = incomingLayerDescription;
       colors = incomingColors;
+      selectedApi = api;
     });
   }
 
