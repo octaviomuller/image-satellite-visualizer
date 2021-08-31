@@ -297,7 +297,7 @@ class _ImageCardState extends State<ImageCard> {
                                 kmlPort: settingsBox?.get('kmlPort'),
                               );
 
-                              await liquidGalaxy.sendToGalaxy();
+                              await liquidGalaxy.sendToGalaxy(widget.image);
                             }
                             //Send to Liquid Galaxy Ubuntu 16
                             else {

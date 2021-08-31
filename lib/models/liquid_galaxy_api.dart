@@ -27,7 +27,11 @@ class LiquidGalaxy {
     return "http://${this.ip}:${this.earthPort}/earth/kml/upload/";
   }
 
-  Future<void> sendToGalaxy() async {
+  String getFlyToUrl(longitude, latitude) {
+    return "http://${this.ip}:${this.earthPort}/earth/query/flyto/$longitude/$latitude/1000000/0/0";
+  }
+
+  Future<void> sendToGalaxy(lastImage) async {
     List<Map<String, dynamic>> payload = [];
 
     //Set a ground overlay object for each image and add to payoad
@@ -71,7 +75,7 @@ class LiquidGalaxy {
     );
 
     //Check for errors to show in dialog
-    if(kmlResponse.statusCode != 200) throw("Error building kml");
+    if (kmlResponse.statusCode != 200) throw ("Error building kml");
 
     //Create a kml local file
     Directory documentDirectory = await getApplicationDocumentsDirectory();
@@ -91,6 +95,26 @@ class LiquidGalaxy {
     var earthResponse = await dio.post(this.getEarthUrl(), data: formData);
 
     //Check for errors to show in dialog
-    if(earthResponse.statusCode != 200) throw("Error uploading kml");
+    if (earthResponse.statusCode != 200) throw ("Error uploading kml");
+
+    if (lastImage.selected) {
+      var flyToResponse = await http.get(
+        Uri.parse(
+          this.getFlyToUrl(
+            midpoint(lastImage.coordinates['minLon'],
+                lastImage.coordinates['maxLon']),
+            midpoint(
+              lastImage.coordinates['minLat'],
+              lastImage.coordinates['maxLat'],
+            ),
+          ),
+        ),
+      );
+
+      if (flyToResponse.statusCode != 200) throw ("Error flying to");
+    }
   }
+
+  String midpoint(String? a, String? b) =>
+      ((double.parse(a!) + double.parse(b!)) / 2).toString();
 }

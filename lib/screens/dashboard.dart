@@ -217,7 +217,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
           colors: List<Map<String, String>>.from(colors),
           api: element['api'],
           demo: true,
-          storageUrl: 'testeee', //TODO: Set storage url for demos
+          storageUrl: element['storageUrl'], //TODO: Set storage url for demos
         ),
       );
     });

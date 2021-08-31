@@ -1,6 +1,7 @@
 [
   {
     "imagePath": "assets/demos/fortaleza-96784.jpeg",
+    "storageUrl": "https://storage.googleapis.com/image-satellite-visualizer-lg.appspot.com/images/fortaleza-96784.jpeg",
     "title": "Fortaleza - Brazil",
     "description": "Fortaleza is the capital of the state of Ceará, in Northeast Brazil. The city is known for its beaches, with red cliffs, palm trees, dunes and lagoons. The city's folk traditions can be seen in dance performances at the Theatro José de Alencar, an art nouveau-style building inaugurated in 1910. Another architectural highlight is the Metropolitan Cathedral, in neo-Gothic style",
     "coordinates": {
@@ -30,6 +31,7 @@
   },
   {
     "imagePath": "assets/demos/toronto-33891.jpeg",
+    "storageUrl": "https://storage.googleapis.com/image-satellite-visualizer-lg.appspot.com/images/toronto-33891.jpeg",
     "title": "Toronto - Canada",
     "description": "Toronto, the provincial capital of Ontario, is a large Canadian city located along the northwestern shore of Lake Ontario. It is a dynamic metropolis with a center of imposing skyscrapers, all overshadowed by the famous CN Tower. Toronto also has many green spaces, including from the oval Queen's Park to the 400-acre High Park, as well as trails, sports facilities and a zoo.",
     "coordinates": {
@@ -59,6 +61,7 @@
   },
   {
     "imagePath": "assets/demos/new_york-78110.jpeg",
+    "storageUrl": "https://storage.googleapis.com/image-satellite-visualizer-lg.appspot.com/images/new_york-78110.jpeg",
     "title": "New York - United States",
     "description": "New York City comprises 5 districts located at the intersection of the Hudson River and the Atlantic Ocean. In the center of the city is Manhattan, a densely populated district that ranks among the world's top commercial, financial and cultural centers. Among its emblematic points, stand out skyscrapers, such as the Empire State Building, and the huge Central Park. The Broadway theater sits amidst the neon lights of Times Square.",
     "coordinates": {
@@ -80,6 +83,7 @@
   },
   {
     "imagePath": "assets/demos/gilbratar-00127.jpeg",
+    "storageUrl": "https://storage.googleapis.com/image-satellite-visualizer-lg.appspot.com/images/gilbratar-00127.jpeg",
     "title": "Gilbratar",
     "description": "Gibraltar is a British headland and overseas territory on the southern coast of Spain. The site is dominated by the Rock of Gibraltar, in limestone and with an altitude of 426 m. First colonized by the Moors in the Middle Ages and then ruled by the Spaniards, the territory was ceded to the British in 1713. In the layers of fortifications, there are remains of a 14th century Moorish castle and the Great Siege Tunnels, excavated in the 18th century and expanded in World War II.",
     "coordinates": {
@@ -109,6 +113,7 @@
   },
   {
     "imagePath": "assets/demos/rio_de_janeiro-99078.jpeg",
+    "storageUrl": "https://storage.googleapis.com/image-satellite-visualizer-lg.appspot.com/images/rio_de_janeiro-99078.jpeg",
     "title": "Rio de Janeiro - Brazil",
     "description": "Rio de Janeiro is a large Brazilian city by the sea, famous for the beaches of Copacabana and Ipanema, the 38-meter tall statue of Christ the Redeemer atop Corcovado, and the Sugarloaf Mountain, a granite peak with cable cars to its summit. The city is also known for its large favelas. The exciting Carnival, with floats, extravagant costumes and samba dancers, is considered the biggest in the world.",
     "coordinates": {
@@ -138,6 +143,7 @@
   },
   {
     "imagePath": "assets/demos/singapore-99120.jpeg",
+    "storageUrl": "https://storage.googleapis.com/image-satellite-visualizer-lg.appspot.com/images/singapore-99120.jpeg",
     "title": "Singapore",
     "description": "Singapore, an island city-state to the south of Malaysia, is a global financial center with a tropical climate and multicultural population. Its colonial center revolves around the Padang, an 1830s cricket field that is today flanked by large buildings such as the City Hall, with 18 Corinthian columns. In Chinatown, which appeared around 1820, is the Buddha Tooth Relic Temple, in red and gold, which supposedly houses one of the Buddha's teeth.",
     "coordinates": {
@@ -167,6 +173,7 @@
   },
   {
     "imagePath": "assets/demos/auckland-43567.jpeg",
+    "storageUrl": "https://storage.googleapis.com/image-satellite-visualizer-lg.appspot.com/images/auckland-43567.jpeg",
     "title": "Auckland - New Zeland",
     "description": "Auckland is an important city close to 2 major ports in the north of the North Island of New Zealand. In the city center, on Queen Street, the iconic Sky Tower overlooks the Port Viaduct, lined with yachts and lined with bars and cafes. Auckland Domain, the city's oldest park, is next to an extinct volcano and is home to the Wintergardens. Near downtown, Mission Bay Beach has an oceanfront boardwalk.",
     "coordinates": {
@@ -196,6 +203,7 @@
   },
   {
     "imagePath": "assets/demos/havana-22906.jpeg",
+    "storageUrl": "https://storage.googleapis.com/image-satellite-visualizer-lg.appspot.com/images/havana-22906.jpeg",
     "title": "Havana - Cuba",
     "description": "Havana, the capital of Cuba, displays in its historic center 16th-century Spanish colonial architecture, with examples such as the Castillo de la Real Fuerza fort and maritime museum. The National Capitol is a classic monument from the 1920s. Also situated in the old city of Havana are the baroque cathedral San Cristóbal and Plaza Vieja, whose buildings reflect the city's vibrant architectural composition.",
     "coordinates": {
@@ -225,6 +233,7 @@
   },
   {
     "imagePath": "assets/demos/tokyo-50876.jpeg",
+    "storageUrl": "https://storage.googleapis.com/image-satellite-visualizer-lg.appspot.com/images/tokyo-50876.jpeg",
     "title": "Tokyo - Japan",
     "description": "Tokyo, Japan's bustling capital, combines ultra-modern style with traditional, from neon-lit skyscrapers to historic temples. The opulent Meiji Shinto shrine is known for its towering gate and the surrounding forests. The Imperial Palace is located amidst public gardens. The city's many museums offer exhibits ranging from classical art (at the Tokyo National Museum) to a reconstructed kabuki theater (at the Edo-Tokyo Museum).",
     "coordinates": {
