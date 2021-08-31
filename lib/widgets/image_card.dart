@@ -5,6 +5,7 @@ import 'package:hive/hive.dart';
 import 'package:image_satellite_visualizer/models/client.dart';
 import 'package:image_satellite_visualizer/models/image_data.dart';
 import 'package:image_satellite_visualizer/models/liquid_galaxy_api.dart';
+import 'package:image_satellite_visualizer/screens/image_form/image_form.dart';
 import 'package:image_satellite_visualizer/widgets/image_info.dart'
     as imageInfo;
 
@@ -13,9 +14,11 @@ class ImageCard extends StatefulWidget {
     Key? key,
     required this.image,
     required this.callback,
+    required this.demos,
   }) : super(key: key);
   final ImageData image;
   final callback;
+  final List demos;
 
   @override
   _ImageCardState createState() => _ImageCardState();
@@ -24,6 +27,7 @@ class ImageCard extends StatefulWidget {
 class _ImageCardState extends State<ImageCard> {
   Box? settingsBox;
   Box? selectedImagesBox;
+  Box? imageBox;
 
   TextEditingController titleEditingController = TextEditingController();
   TextEditingController descriptionEditingController = TextEditingController();
@@ -33,6 +37,7 @@ class _ImageCardState extends State<ImageCard> {
     super.initState();
     settingsBox = Hive.box('liquidGalaxySettings');
     selectedImagesBox = Hive.box('selectedImages');
+    imageBox = Hive.box('imageBox');
     titleEditingController.text = widget.image.title;
     descriptionEditingController.text = widget.image.description;
   }
@@ -186,7 +191,7 @@ class _ImageCardState extends State<ImageCard> {
                         widget.image.demo
                             ? Container()
                             : IconButton(
-                              //TODO: Clean from device
+                                //TODO: Clean from device
                                 onPressed: () {
                                   showDialog(
                                     context: context,
@@ -217,6 +222,7 @@ class _ImageCardState extends State<ImageCard> {
                                                     selectedImagesBox!.values
                                                         .toList()
                                                         .join('\n'));
+                                                Navigator.pop(context);
                                               } catch (e) {
                                                 showDialog(
                                                   context: context,
@@ -231,7 +237,6 @@ class _ImageCardState extends State<ImageCard> {
                                                   },
                                                 );
                                               }
-                                              Navigator.pop(context);
                                             },
                                             child: Text(
                                               "Delete",
@@ -258,152 +263,79 @@ class _ImageCardState extends State<ImageCard> {
                         widget.image.demo
                             ? Container()
                             : IconButton(
-                                onPressed: () {
-                                  showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return AlertDialog(
-                                          content: SingleChildScrollView(
-                                            child: Container(
-                                              width: screenSize.width * 0.6,
-                                              height: screenSize.height * 0.5,
-                                              child: Column(
-                                                children: [
-                                                  Padding(
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                      vertical:
-                                                          screenSize.height *
-                                                              0.015,
-                                                      horizontal:
-                                                          screenSize.height *
-                                                              0.015,
-                                                    ),
-                                                    child: TextField(
-                                                      controller:
-                                                          titleEditingController,
-                                                      decoration:
-                                                          new InputDecoration(
-                                                        hintText: 'Title',
-                                                        labelText: 'Title',
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  Padding(
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                      vertical:
-                                                          screenSize.height *
-                                                              0.015,
-                                                      horizontal:
-                                                          screenSize.height *
-                                                              0.015,
-                                                    ),
-                                                    child: TextField(
-                                                      maxLines: 8,
-                                                      controller:
-                                                          descriptionEditingController,
-                                                      decoration:
-                                                          new InputDecoration(
-                                                        hintText: 'Description',
-                                                        labelText:
-                                                            'Description',
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                          actions: [
-                                            TextButton(
-                                              child: Text(
-                                                "CANCEL",
-                                                style: TextStyle(
-                                                    color: Colors.grey[600]),
-                                              ),
-                                              onPressed: () =>
-                                                  Navigator.pop(context),
-                                            ),
-                                            TextButton(
-                                              child: Text(
-                                                "SET",
-                                                style: TextStyle(
-                                                    color: Theme.of(context)
-                                                        .accentColor),
-                                              ),
-                                              onPressed: () {
-                                                setState(() {
-                                                  widget.image.title =
-                                                      titleEditingController
-                                                          .text;
-                                                  widget.image.description =
-                                                      descriptionEditingController
-                                                          .text;
-                                                });
-                                                Navigator.pop(context);
-                                              },
-                                            ),
-                                          ],
-                                        );
-                                      });
-                                },
+                                onPressed: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          ImageForm(widget.image, false)),
+                                ),
                                 icon: Icon(Icons.edit),
+                              ),
+                        widget.image.demo
+                            ? Container()
+                            : IconButton(
+                                onPressed: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          ImageForm(widget.image, true)),
+                                ),
+                                icon: Icon(Icons.copy),
                               ),
                         Spacer(),
                         IconButton(
-                          onPressed: () => null,
-                          // onPressed: () async {
-                          //   //Send to Liquid Galaxy Ubuntu 18/20
-                          //   if (settingsBox?.get('newLiquidGalaxy')) {
-                          //     //Set image as selected/unselected
-                          //     widget.callback(widget.image);
+                          onPressed: () async {
+                            //Send to Liquid Galaxy Ubuntu 18/20
+                            if (settingsBox?.get('newLiquidGalaxy')) {
+                              //Set image as selected/unselected
+                              widget.callback(widget.image);
 
-                          //     LiquidGalaxy liquidGalaxy = LiquidGalaxy(
-                          //       images: [widget.image],
-                          //       ip: settingsBox?.get('ip'),
-                          //       earthPort: settingsBox?.get('earthPort'),
-                          //       kmlPort: settingsBox?.get('kmlPort'),
-                          //     );
-                          //     await liquidGalaxy.sendToGalaxy();
-                          //   }
-                          //   //Send to Liquid Galaxy Ubuntu 16
-                          //   else {
-                          //     //Set image as selected/unselected
-                          //     widget.callback(widget.image);
+                              LiquidGalaxy liquidGalaxy = LiquidGalaxy(
+                                images: getSelectedImages(),
+                                ip: settingsBox?.get('ip'),
+                                earthPort: settingsBox?.get('earthPort'),
+                                kmlPort: settingsBox?.get('kmlPort'),
+                              );
 
-                          //     widget.image.selected
-                          //         ? await selectedImagesBox?.put(
-                          //             'http://lg1:81/${widget.image.getFileName()}.kml',
-                          //             'http://lg1:81/${widget.image.getFileName()}.kml')
-                          //         : await selectedImagesBox?.delete(
-                          //             'http://lg1:81/${widget.image.getFileName()}.kml');
+                              await liquidGalaxy.sendToGalaxy();
+                            }
+                            //Send to Liquid Galaxy Ubuntu 16
+                            else {
+                              //Set image as selected/unselected
+                              widget.callback(widget.image);
 
-                          //     Client client = Client(
-                          //       ip: settingsBox?.get('ip'),
-                          //       username: settingsBox?.get('username'),
-                          //       password: settingsBox?.get('password'),
-                          //       image: widget.image,
-                          //     );
-                          //     try {
-                          //       client.sendImage(selectedImagesBox!.values
-                          //           .toList()
-                          //           .join('\n'));
-                          //     } catch (e) {
-                          //       showDialog(
-                          //         context: context,
-                          //         builder: (context) {
-                          //           return AlertDialog(
-                          //             title: Text("Error sending image"),
-                          //             content: Text(
-                          //               e.toString(),
-                          //             ),
-                          //           );
-                          //         },
-                          //       );
-                          //     }
-                          //   }
-                          // },
+                              widget.image.selected
+                                  ? await selectedImagesBox?.put(
+                                      'http://lg1:81/${widget.image.getFileName()}.kml',
+                                      'http://lg1:81/${widget.image.getFileName()}.kml')
+                                  : await selectedImagesBox?.delete(
+                                      'http://lg1:81/${widget.image.getFileName()}.kml');
+
+                              Client client = Client(
+                                ip: settingsBox?.get('ip'),
+                                username: settingsBox?.get('username'),
+                                password: settingsBox?.get('password'),
+                                image: widget.image,
+                              );
+                              try {
+                                client.sendImage(selectedImagesBox!.values
+                                    .toList()
+                                    .join('\n'));
+                              } catch (e) {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      title: Text("Error sending image"),
+                                      content: Text(
+                                        e.toString(),
+                                      ),
+                                    );
+                                  },
+                                );
+                              }
+                            }
+                          },
                           icon: Icon(
                             widget.image.selected
                                 ? Icons.remove_circle
@@ -421,5 +353,16 @@ class _ImageCardState extends State<ImageCard> {
         ),
       ),
     );
+  }
+
+  List getSelectedImages() {
+    List images = [];
+    imageBox!.values.toList().forEach((element) {
+      if (element.selected) images.add(element);
+    });
+    widget.demos.forEach((element) {
+      if (element.selected) images.add(element);
+    });
+    return images;
   }
 }

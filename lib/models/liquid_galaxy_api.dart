@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
-import 'package:image_satellite_visualizer/models/image_data.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
@@ -11,7 +10,7 @@ class LiquidGalaxy {
   final String ip;
   final String earthPort;
   final String kmlPort;
-  List<ImageData> images;
+  List images;
 
   LiquidGalaxy({
     required this.ip,
@@ -89,7 +88,7 @@ class LiquidGalaxy {
     });
 
     //Execute request with file attached
-    var earthResponse = await dio.post(this.getEarthUrl(), data: 'asdasdasd');
+    var earthResponse = await dio.post(this.getEarthUrl(), data: formData);
 
     //Check for errors to show in dialog
     if(earthResponse.statusCode != 200) throw("Error uploading kml");

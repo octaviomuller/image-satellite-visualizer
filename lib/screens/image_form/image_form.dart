@@ -17,7 +17,9 @@ import 'dart:math';
 import 'dart:io';
 
 class ImageForm extends StatefulWidget {
-  const ImageForm({Key? key}) : super(key: key);
+  final ImageData? imageData;
+  final bool newImage;
+  const ImageForm(this.imageData, this.newImage, {Key? key}) : super(key: key);
 
   @override
   _ImageFormState createState() => _ImageFormState();
@@ -62,6 +64,21 @@ class _ImageFormState extends State<ImageForm> {
   void initState() {
     super.initState();
 
+    if (widget.imageData != null) {
+      coordinates["lat1Controller"]?.text =
+          widget.imageData!.coordinates['minLat'].toString();
+      coordinates["lon1Controller"]?.text =
+          widget.imageData!.coordinates['minLon'].toString();
+      coordinates["lat2Controller"]?.text =
+          widget.imageData!.coordinates['maxLat'].toString();
+      coordinates["lon2Controller"]?.text =
+          widget.imageData!.coordinates['maxLon'].toString();
+      nameController.text = widget.imageData!.title;
+      descriptionController.text = widget.imageData!.description;
+      date = widget.imageData!.date;
+      _currentStep = 1;
+    }
+
     //Set Hive box
     imageBox = Hive.box('imageBox');
   }
@@ -99,7 +116,7 @@ class _ImageFormState extends State<ImageForm> {
                 cloudCoverage: cloudCoverage,
                 cloudCoverageCallback: setCloudCoverage,
               ),
-              isActive: _currentStep >= 0,
+              isActive: _currentStep >= 0 && widget.imageData == null,
               state:
                   _currentStep >= 1 ? StepState.complete : StepState.disabled,
             ),
@@ -135,7 +152,11 @@ class _ImageFormState extends State<ImageForm> {
   //Step tap event
   tapped(int step) {
     //Set imagePath to null if leaving final step
-    if (step != 3) imagePath = null;
+    if (step != 2) imagePath = null;
+
+    if (step == 0) {
+      if (widget.imageData != null) return;
+    }
 
     setState(() => _currentStep = step);
   }
@@ -218,8 +239,11 @@ class _ImageFormState extends State<ImageForm> {
   //Step cancel event
   cancel() {
     if (_currentStep > 0) {
+      if (_currentStep == 1) {
+        if (widget.imageData != null) return;
+      }
       //Set imagePath to null if leaving final step
-      if (_currentStep == 3) imagePath = null;
+      if (_currentStep == 2) imagePath = null;
 
       setState(() => _currentStep -= 1);
     } else {
@@ -319,23 +343,37 @@ class _ImageFormState extends State<ImageForm> {
       ),
     );
 
-    //Create Image Data object
-    var imageData = ImageData(
-      imagePath: imagePath!,
-      title: nameController.text,
-      description: descriptionController.text,
-      coordinates: coordinatesMap,
-      api: selectedApi,
-      date: date,
-      layer: layerShortName,
-      layerDescription: layerDescription,
-      colors: colors,
-      demo: false,
-      storageUrl: await uploadFile(imagePath!, nameController.text),
-    );
-
     //Add image to box
-    imageBox?.add(imageData);
+    if (widget.newImage) {
+      //Create Image Data object
+      var imageData = ImageData(
+        imagePath: imagePath!,
+        title: nameController.text,
+        description: descriptionController.text,
+        coordinates: coordinatesMap,
+        api: selectedApi,
+        date: date,
+        layer: layerShortName,
+        layerDescription: layerDescription,
+        colors: colors,
+        demo: false,
+        storageUrl: await uploadFile(imagePath!, nameController.text),
+      );
+      imageBox?.add(imageData);
+    } else {
+      widget.imageData!.imagePath = imagePath!;
+      widget.imageData!.title = nameController.text;
+      widget.imageData!.description = descriptionController.text;
+      widget.imageData!.coordinates = coordinatesMap;
+      widget.imageData!.api = selectedApi;
+      widget.imageData!.date = date;
+      widget.imageData!.layer = layerShortName;
+      widget.imageData!.layerDescription = layerDescription;
+      widget.imageData!.colors = colors;
+      widget.imageData!.demo = false;
+      widget.imageData!.storageUrl =
+          await uploadFile(imagePath!, nameController.text);
+    }
 
     //TODO: Search for popUntil
     Navigator.pop(context);
@@ -396,12 +434,11 @@ class _ImageFormState extends State<ImageForm> {
 
   //Layer callback
   void setLayer(
-    String incomingLayer,
-    String incomingShortName,
-    String incomingLayerDescription,
-    List<dynamic> incomingColors,
-    String api
-  ) {
+      String incomingLayer,
+      String incomingShortName,
+      String incomingLayerDescription,
+      List<dynamic> incomingColors,
+      String api) {
     setState(() {
       layer = incomingLayer;
       layerShortName = incomingShortName;

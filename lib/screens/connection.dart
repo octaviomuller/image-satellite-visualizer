@@ -94,13 +94,18 @@ class _ConnectionState extends State<Connection> {
                 //Changes setup layout
                 isSelected[0]
                     ? inputController('IP', ipTextController, screenSize, false)
-                    : inputController('IP', urlIpTextController, screenSize, false),
+                    : inputController(
+                        'IP', urlIpTextController, screenSize, false),
                 isSelected[0]
-                    ? inputController('Username', usernameTextController, screenSize, false)
-                    : inputController('KML Port', urlIpTextController, screenSize, false),
+                    ? inputController(
+                        'Username', usernameTextController, screenSize, false)
+                    : inputController('KML Port', urlKmlPortTextController,
+                        screenSize, false),
                 isSelected[0]
-                    ? inputController('Password', passwordTextController, screenSize, true)
-                    : inputController('Earth Port', urlEarthPortTextController, screenSize, false),
+                    ? inputController(
+                        'Password', passwordTextController, screenSize, true)
+                    : inputController('Earth Port', urlEarthPortTextController,
+                        screenSize, false),
                 Spacer(),
                 Padding(
                   padding: EdgeInsets.symmetric(
@@ -126,7 +131,6 @@ class _ConnectionState extends State<Connection> {
                               TextStyle(color: Theme.of(context).accentColor),
                         ),
                         onPressed: () async {
-                          //TODO: Create model for liquidgalaxy setup
                           //Set setup variables in settings box
 
                           //Ubuntu 16 setup
@@ -137,6 +141,44 @@ class _ConnectionState extends State<Connection> {
                                 'username', usernameTextController.text);
                             settingsBox?.put(
                                 'password', passwordTextController.text);
+
+                            //Create client object
+                            Client client = Client(
+                              ip: settingsBox?.get('ip'),
+                              username: settingsBox?.get('username'),
+                              password: settingsBox?.get('password'),
+                            );
+
+                            try {
+                              //Set connection values
+                              await client.checkConnection();
+                              settingsBox?.put('connection', true);
+
+                              //TODO: Check if it's necessary in this fork
+                              //Send logos for Liquid Galaxy
+                              client.sendLogos();
+
+                              //Changes drawer layout back
+                              setState(() {
+                                liquidGalaxySetup = false;
+                              });
+                            } catch (e) {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: Text(
+                                        "Error on liquid galaxy connection"),
+                                    content: Text(
+                                      'Check connection settings',
+                                    ),
+                                  );
+                                },
+                              );
+
+                              //Set connection values
+                              settingsBox?.put('connection', false);
+                            }
                           }
                           //Ubuntu 18/20 setup
                           else {
@@ -146,45 +188,11 @@ class _ConnectionState extends State<Connection> {
                                 'kmlPort', urlKmlPortTextController.text);
                             settingsBox?.put(
                                 'earthPort', urlEarthPortTextController.text);
-                          }
 
-                          //TODO: Create global client
-                          //Create client object
-                          Client client = Client(
-                            ip: settingsBox?.get('ip'),
-                            username: settingsBox?.get('username'),
-                            password: settingsBox?.get('password'),
-                          );
-
-                          try {
-                            //Set connection values
-                            await client.checkConnection();
                             settingsBox?.put('connection', true);
-
-                            //TODO: Check if it's necessary in this fork
-                            //Send logos for Liquid Galaxy
-                            client.sendLogos();
-
-                            //Changes drawer layout back
                             setState(() {
-                              liquidGalaxySetup = false;
-                            });
-                          } catch (e) {
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                  title:
-                                      Text("Error on liquid galaxy connection"),
-                                  content: Text(
-                                    'Check connection settings',
-                                  ),
-                                );
-                              },
-                            );
-
-                            //Set connection values
-                            settingsBox?.put('connection', false);
+                                liquidGalaxySetup = false;
+                              });
                           }
                         },
                       ),
@@ -239,8 +247,8 @@ class _ConnectionState extends State<Connection> {
     );
   }
 
-  Widget inputController(
-      String label, TextEditingController controller, Size screenSize, bool password) {
+  Widget inputController(String label, TextEditingController controller,
+      Size screenSize, bool password) {
     return Padding(
       padding: EdgeInsets.symmetric(
         vertical: screenSize.height * 0.015,

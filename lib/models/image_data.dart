@@ -8,7 +8,7 @@ part 'image_data.g.dart';
 @HiveType(typeId: 0)
 class ImageData extends HiveObject {
   @HiveField(0)
-  final String imagePath;
+  String imagePath;
 
   @HiveField(1)
   String title;
@@ -17,28 +17,28 @@ class ImageData extends HiveObject {
   String description;
 
   @HiveField(3)
-  final Map<String, String> coordinates;
+  Map<String, String> coordinates;
 
   @HiveField(4)
-  final DateTime date;
+  DateTime date;
 
   @HiveField(5)
-  final String api;
+  String api;
 
   @HiveField(6)
-  final String layer;
+  String layer;
 
   @HiveField(7)
-  final String layerDescription;
+  String layerDescription;
 
   @HiveField(8)
-  final List<dynamic> colors;
+  List<dynamic> colors;
 
   @HiveField(9)
-  final bool demo;
+  bool demo;
 
   @HiveField(10)
-  final String storageUrl;
+  String storageUrl;
 
   bool selected = false;
 
@@ -86,7 +86,7 @@ class ImageData extends HiveObject {
 
   String getFileName() {
     RegExp regexCreated = RegExp(
-        "/data/user/0/com.example.image_satellite_visualizer/app_flutter/(.*).jpeg");
+        "/data/user/0/com.image_satellite_visualizer/app_flutter/(.*).jpeg");
     RegExp regexDemo = RegExp("assets/demos/(.*).jpeg");
 
     var fileName = this.demo

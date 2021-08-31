@@ -146,7 +146,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
             ? FloatingActionButton(
                 onPressed: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ImageForm()),
+                  MaterialPageRoute(builder: (context) => ImageForm(null, true)),
                 ),
                 tooltip: 'New image',
                 child: Icon(Icons.add),
@@ -188,7 +188,7 @@ class _DashboardState extends State<Dashboard> with TickerProviderStateMixin {
       list.add(
         Container(
           padding: const EdgeInsets.all(8.0),
-          child: ImageCard(image: image, callback: setSelection),
+          child: ImageCard(image: image, callback: setSelection, demos: demoImages),
         ),
       );
     }

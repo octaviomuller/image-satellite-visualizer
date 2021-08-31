@@ -41,6 +41,8 @@ class _FirstStepState extends State<FirstStep> {
   Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
   Map<PolygonId, Polygon> polygons = <PolygonId, Polygon>{};
   int _markerIdCounter = 1;
+  Resolution mapsResolution = Resolution.km1;
+  double cloudCoverage = 0;
 
   List<bool> isSelected = [false, true];
 
@@ -92,11 +94,11 @@ class _FirstStepState extends State<FirstStep> {
                       ],
                     ),
                     IconButton(
-                      onPressed: _resetMarkers,
-                      icon: Icon(Icons.refresh),
-                      iconSize: screenSize.width * 0.03,
-                      splashRadius: screenSize.width * 0.025,
-                    ),
+                              onPressed: _resetMarkers,
+                              icon: Icon(Icons.refresh),
+                              iconSize: screenSize.width * 0.03,
+                              splashRadius: screenSize.width * 0.025,
+                            ),
                   ],
                 ),
                 Spacer(),
@@ -104,6 +106,78 @@ class _FirstStepState extends State<FirstStep> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            vertical: screenSize.height * 0.02),
+                        child: Text(
+                          'Resolution',
+                          style: TextStyle(fontWeight: FontWeight.w300),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: screenSize.height * 0.01),
+                        child: InputDecorator(
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(5.0)),
+                            contentPadding: EdgeInsets.all(10),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: mapsResolution.toString(),
+                              isDense: true,
+                              isExpanded: true,
+                              items: [
+                                DropdownMenuItem(
+                                  child: Text("250m"),
+                                  value: Resolution.m250.toString(),
+                                ),
+                                DropdownMenuItem(
+                                  child: Text("500m"),
+                                  value: Resolution.m500.toString(),
+                                ),
+                                DropdownMenuItem(
+                                  child: Text("1km"),
+                                  value: Resolution.km1.toString(),
+                                ),
+                                DropdownMenuItem(
+                                  child: Text("5km"),
+                                  value: Resolution.km5.toString(),
+                                ),
+                                DropdownMenuItem(
+                                  child: Text("10km"),
+                                  value: Resolution.km10.toString(),
+                                ),
+                              ],
+                              onChanged: (newValue) {
+                                Resolution newResolution = Resolution.km1;
+                                switch (newValue) {
+                                  case "Resolution.m250":
+                                    newResolution = Resolution.m250;
+                                    break;
+                                  case "Resolution.m500":
+                                    newResolution = Resolution.m500;
+                                    break;
+                                  case "Resolution.km1":
+                                    newResolution = Resolution.km1;
+                                    break;
+                                  case "Resolution.km5":
+                                    newResolution = Resolution.km5;
+                                    break;
+                                  case "Resolution.km10":
+                                    newResolution = Resolution.km10;
+                                    break;
+                                }
+                                setState(() {
+                                  mapsResolution = newResolution;
+                                });
+                                widget.resolutionCallback(newResolution);
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
                       Padding(
                         padding: EdgeInsets.symmetric(
                             vertical: screenSize.height * 0.02),
@@ -238,6 +312,24 @@ class _FirstStepState extends State<FirstStep> {
                       ),
                     ],
                   ),
+                ),
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(vertical: screenSize.height * 0.02),
+                  child: Text(
+                    'Cloud Coverage: ${this.cloudCoverage.toString()}',
+                    style: TextStyle(fontWeight: FontWeight.w300),
+                  ),
+                ),
+                Slider(
+                  value: cloudCoverage,
+                  min: 0,
+                  max: 100,
+                  onChanged: (double value) {
+                    setState(() {
+                      cloudCoverage = double.parse(value.toStringAsFixed(1));
+                    });
+                  },
                 ),
                 Spacer(),
               ],
